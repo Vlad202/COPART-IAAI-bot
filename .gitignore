@@ -1,0 +1,5 @@
+env/
+telegram.txt
+secrets.py
+__pycache__/
+2021-05-10/
