@@ -147,7 +147,7 @@ def coport_parser(copart_next_post):
     ua['google chrome']
     headers['User-Agent'] = ua['google chrome']
     s.headers.update(headers)
-    text = ''
+    text = f'https://www.copart.com/lot/{str(copart_next_post["ln"])}/\n\n'
     for key in range(len(URLS['copart']['keys']['keys'])):
         try:  
             value = str(copart_next_post[URLS['copart']['keys']['keys'][key]]) 
