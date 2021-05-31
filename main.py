@@ -137,11 +137,19 @@ def bot_thread():
 	app.polling()
 
 def download_image(car_id, i, image_id):
+    time.sleep(2)
     image = requests.get(i['url']).content
     with open(f'./{car_id}/'+str(car_id)+' --- '+str(image_id)+'.jpg', 'wb') as f:
         f.write(image)
 
+def get_images_list(copart_next_post):
+    images_list = json.loads(s.get('https://www.copart.com/public/data/lotdetails/solr/lotImages/'+str(copart_next_post['ln'])+'').text)['data']['imagesList']['FULL_IMAGE']
+    return images_list
 def coport_parser(copart_next_post):
+    ua.update()
+    ua['google chrome']
+    headers['User-Agent'] = ua['google chrome']
+    s.headers.update(headers)
     text = ''
     for key in range(len(URLS['copart']['keys']['keys'])):
         try:  
@@ -149,8 +157,8 @@ def coport_parser(copart_next_post):
             if URLS['copart']['keys']['keys'][key] == 'ad':
                 datetime.datetime.fromtimestamp(copart_next_post[URLS['copart']['keys']['keys'][key]])
             text += URLS['copart']['keys']['values'][key] + ': ' + value + '\n'
-        except Exception as e:
-            print(e)
+        except:
+            pass
     try:
         text += f"Статус продажи: {copart_next_post['dynamicLotDetails']['saleStatus']}\n"
     except:
@@ -165,8 +173,9 @@ def coport_parser(copart_next_post):
         f.write(text)
 
     exception_flag = True
+    time.sleep(5)
     try:
-        images_list = json.loads(s.get('https://www.copart.com/public/data/lotdetails/solr/lotImages/31839991/USA').text)['data']['imagesList']['FULL_IMAGE']
+        get_images_list(copart_next_post)
     except Exception as e:
         exception_flag = False
         print(e)
@@ -274,6 +283,7 @@ def parser_thread():
             if data_cars[str(cars_filter+1)] != copart_next_post['ln']:
                 coport_parser(copart_next_post)
                 data_cars[str(cars_filter+1)] = copart_next_post['ln']
+            time.sleep(30)
         print('checkout ------- copart ------- ' + datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S"))
         # aiia
         cars_counter = 0
@@ -291,7 +301,7 @@ def parser_thread():
                 parse_aiia(post_url)
                 data_aiia[str(url+1)] = post_url
         print('checkout ------- aiia ------- ' + datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S"))
-        time.sleep(300)
+        time.sleep(250)
 
 if __name__ == '__main__':
 	thr_bot = threading.Thread(target=bot_thread)
