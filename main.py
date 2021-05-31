@@ -141,10 +141,7 @@ def download_image(car_id, i, image_id):
     image = requests.get(i['url']).content
     with open(f'./{car_id}/'+str(car_id)+' --- '+str(image_id)+'.jpg', 'wb') as f:
         f.write(image)
-
-def get_images_list(copart_next_post):
-    images_list = json.loads(s.get('https://www.copart.com/public/data/lotdetails/solr/lotImages/'+str(copart_next_post['ln'])+'').text)['data']['imagesList']['FULL_IMAGE']
-    return images_list
+        
 def coport_parser(copart_next_post):
     ua.update()
     ua['google chrome']
@@ -175,7 +172,7 @@ def coport_parser(copart_next_post):
     exception_flag = True
     time.sleep(5)
     try:
-        get_images_list(copart_next_post)
+        images_list = json.loads(s.get('https://www.copart.com/public/data/lotdetails/solr/lotImages/'+str(copart_next_post['ln'])+'').text)['data']['imagesList']['FULL_IMAGE']
     except Exception as e:
         exception_flag = False
         print(e)
