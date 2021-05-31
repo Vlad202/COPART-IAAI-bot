@@ -258,31 +258,31 @@ def parser_thread():
     print('### START PARSER ###')
     while True:
         # copart
-        # try:
-        #     ua.update()
-        #     ua['google chrome']
-        #     headers['User-Agent'] = ua['google chrome']
-        #     s.headers.update(headers)
-        #     request_cookie_update = s.get('https://www.copart.com/ru/lotSearchResults/?free=true&query=&searchCriteria=%7B%22query%22:%5B%22*%22%5D,%22filter%22:%7B%22FUEL%22:%5B%22fuel_type_desc:%5C%22ELECTRIC%5C%22%22%5D,%22YEAR%22:%5B%22lot_year:%5C%222016%5C%22%22,%22lot_year:%5C%222017%5C%22%22,%22lot_year:%5C%222018%5C%22%22,%22lot_year:%5C%222019%5C%22%22,%22lot_year:%5C%222020%5C%22%22,%22lot_year:%5C%222021%5C%22%22%5D%7D,%22sort%22:%5B%22auction_date_type%20desc%22,%22auction_date_utc%20asc%22%5D,%22watchListOnly%22:false,%22searchName%22:%22%22,%22freeFormSearch%22:false%7D')
-        #     headers['cookie'] = request_cookie_update.request.headers['Cookie']
-        # except Exception as e:
-        #     print(e)
-        #     print('Exception in cookie request')
-        #     continue
-        # copart_data = URLS['copart']['data']
-        # for cars_filter in range(len(copart_data)):
-        #     try:
-        #         response_copart = json.loads(s.post(URLS['copart']['url'], data=copart_data[cars_filter]).text)['data']['results']['content']
-        #     except Exception as e:
-        #         print(e)
-        #         print(f'Exception in copart global requests, iteration {cars_filter+1}')
-        #         continue
-        #     copart_next_post = response_copart[0]
-        #     if data_cars[str(cars_filter+1)] != copart_next_post['ln']:
-        #         coport_parser(copart_next_post)
-        #         data_cars[str(cars_filter+1)] = copart_next_post['ln']
-        #     time.sleep(30)
-        # print('checkout ------- copart ------- ' + datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S"))
+        try:
+            ua.update()
+            ua['google chrome']
+            headers['User-Agent'] = ua['google chrome']
+            s.headers.update(headers)
+            request_cookie_update = s.get('https://www.copart.com/ru/lotSearchResults/?free=true&query=&searchCriteria=%7B%22query%22:%5B%22*%22%5D,%22filter%22:%7B%22FUEL%22:%5B%22fuel_type_desc:%5C%22ELECTRIC%5C%22%22%5D,%22YEAR%22:%5B%22lot_year:%5C%222016%5C%22%22,%22lot_year:%5C%222017%5C%22%22,%22lot_year:%5C%222018%5C%22%22,%22lot_year:%5C%222019%5C%22%22,%22lot_year:%5C%222020%5C%22%22,%22lot_year:%5C%222021%5C%22%22%5D%7D,%22sort%22:%5B%22auction_date_type%20desc%22,%22auction_date_utc%20asc%22%5D,%22watchListOnly%22:false,%22searchName%22:%22%22,%22freeFormSearch%22:false%7D')
+            headers['cookie'] = request_cookie_update.request.headers['Cookie']
+        except Exception as e:
+            print(e)
+            print('Exception in cookie request')
+            continue
+        copart_data = URLS['copart']['data']
+        for cars_filter in range(len(copart_data)):
+            try:
+                response_copart = json.loads(s.post(URLS['copart']['url'], data=copart_data[cars_filter]).text)['data']['results']['content']
+            except Exception as e:
+                print(e)
+                print(f'Exception in copart global requests, iteration {cars_filter+1}')
+                continue
+            copart_next_post = response_copart[0]
+            if data_cars[str(cars_filter+1)] != copart_next_post['ln']:
+                coport_parser(copart_next_post)
+                data_cars[str(cars_filter+1)] = copart_next_post['ln']
+            time.sleep(30)
+        print('checkout ------- copart ------- ' + datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S"))
         # aiia
         cars_counter = 0
         for url in range(len(URLS['aiia'])):
