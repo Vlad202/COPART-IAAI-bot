@@ -73,6 +73,10 @@ headers = {
     "x-xsrf-token": "065a6c42-97be-4521-bf90-99d55b97760d",
     'cookie': ''
 }
+ua.update()
+ua['google chrome']
+headers['User-Agent'] = ua['google chrome']
+s.headers.update(headers)
 data_cars = {
     '1': '',
     '2': '',
@@ -143,10 +147,6 @@ def download_image(car_id, i, image_id):
         f.write(image)
         
 def coport_parser(copart_next_post):
-    ua.update()
-    ua['google chrome']
-    headers['User-Agent'] = ua['google chrome']
-    s.headers.update(headers)
     text = f'https://www.copart.com/lot/{str(copart_next_post["ln"])}/\n\n'
     for key in range(len(URLS['copart']['keys']['keys'])):
         try:  
@@ -170,7 +170,6 @@ def coport_parser(copart_next_post):
         f.write(text)
 
     exception_flag = True
-    time.sleep(5)
     try:
         images_list = json.loads(s.get('https://www.copart.com/public/data/lotdetails/solr/lotImages/'+str(copart_next_post['ln'])+'').text)['data']['imagesList']['FULL_IMAGE']
     except Exception as e:
@@ -254,15 +253,11 @@ Series: {check_aiia_arr(tree.xpath('//*[@id="waypoint-trigger"]/div[2]/ul/li[15]
         send_zip(car_id)
         os.remove(car_id+'.zip')
         
-def parser_thread():
-    print('### START PARSER ###')
+def copart_thread():
+    print('### START COPART ###')
     while True:
         # copart
         try:
-            ua.update()
-            ua['google chrome']
-            headers['User-Agent'] = ua['google chrome']
-            s.headers.update(headers)
             request_cookie_update = s.get('https://www.copart.com/ru/lotSearchResults/?free=true&query=&searchCriteria=%7B%22query%22:%5B%22*%22%5D,%22filter%22:%7B%22FUEL%22:%5B%22fuel_type_desc:%5C%22ELECTRIC%5C%22%22%5D,%22YEAR%22:%5B%22lot_year:%5C%222016%5C%22%22,%22lot_year:%5C%222017%5C%22%22,%22lot_year:%5C%222018%5C%22%22,%22lot_year:%5C%222019%5C%22%22,%22lot_year:%5C%222020%5C%22%22,%22lot_year:%5C%222021%5C%22%22%5D%7D,%22sort%22:%5B%22auction_date_type%20desc%22,%22auction_date_utc%20asc%22%5D,%22watchListOnly%22:false,%22searchName%22:%22%22,%22freeFormSearch%22:false%7D')
             headers['cookie'] = request_cookie_update.request.headers['Cookie']
         except Exception as e:
@@ -277,12 +272,18 @@ def parser_thread():
                 print(e)
                 print(f'Exception in copart global requests, iteration {cars_filter+1}')
                 continue
+            time.sleep(30)
             copart_next_post = response_copart[0]
             if data_cars[str(cars_filter+1)] != copart_next_post['ln']:
                 coport_parser(copart_next_post)
                 data_cars[str(cars_filter+1)] = copart_next_post['ln']
             time.sleep(30)
         print('checkout ------- copart ------- ' + datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S"))
+        time.sleep(350)
+
+def aiia_thread():
+    print('### START AIIA ###')
+    while True:
         # aiia
         cars_counter = 0
         for url in range(len(URLS['aiia'])):
@@ -299,10 +300,12 @@ def parser_thread():
                 parse_aiia(post_url)
                 data_aiia[str(url+1)] = post_url
         print('checkout ------- aiia ------- ' + datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S"))
-        time.sleep(250)
+        time.sleep(300)
 
 if __name__ == '__main__':
 	thr_bot = threading.Thread(target=bot_thread)
 	thr_bot.start()
-	thr_parser = threading.Thread(target=parser_thread)
-	thr_parser.start()
+	thr_copart = threading.Thread(target=copart_thread)
+	thr_copart.start()
+	thr_aiia = threading.Thread(target=aiia_thread)
+	thr_aiia.start()
