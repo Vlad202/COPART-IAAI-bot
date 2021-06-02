@@ -231,11 +231,12 @@ Vehicle Class: {check_aiia_arr(tree.xpath('//*[@id="waypoint-trigger"]/div[2]/ul
 Model: {check_aiia_arr(tree.xpath('//*[@id="waypoint-trigger"]/div[2]/ul/li[14]/span[2]/text()'))}\n
 Series: {check_aiia_arr(tree.xpath('//*[@id="waypoint-trigger"]/div[2]/ul/li[15]/span[2]/text()'))}\n
         '''
+        car_soup = BeautifulSoup(post_response.text, 'html')
+        # print(car_id)
         try:
-            car_id = f"aiia - {tree.xpath('/html/body/section/main/section[2]/div/div/h1/text()')[0]}"
-
+            car_id = f"aiia - {car_soup.find('h1', {'class': 'heading-2 heading-2-semi mb-0 rtl-disabled'}).text.strip().replace('/', ' ')}"
         except:
-            car_id = datetime.datetime.now().strftime("%m-%d-%Y %H-%M-%S")
+            car_id = f'aiia - {datetime.datetime.now().strftime("%m-%d-%Y %H-%M-%S")}'
         try:
             os.mkdir(car_id)
         except:
@@ -295,10 +296,15 @@ def aiia_thread():
                 response_aiia = requests.get(URLS['aiia'][url]).text
             except Exception as e:
                 print(e)
-                print(f'Exception in copart global requests, iteration {cars_counter}')
+                print(f'Exception in aiia global requests, iteration {cars_counter}')
                 continue
             soup_aiia = BeautifulSoup(response_aiia, 'html')
-            post_url = soup_aiia.find_all('h4', {'class': 'heading-7 rtl-disabled'})[0].find('a').attrs['href']
+            try:
+                post_url = soup_aiia.find_all('h4', {'class': 'heading-7 rtl-disabled'})[0].find('a').attrs['href']
+            except Exception as e:
+                print(e)
+                print(f'Exception in aiia post_url')
+                continue
             if data_aiia[str(url+1)] != post_url:
                 parse_aiia(post_url)
                 data_aiia[str(url+1)] = post_url
