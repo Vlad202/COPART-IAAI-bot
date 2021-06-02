@@ -6,7 +6,6 @@ from requests.api import post
 from bs4 import BeautifulSoup
 from telebot import TeleBot
 import threading
-import datetime
 from secrets import TELEGRAM_TOKEN
 import os
 import datetime
@@ -232,7 +231,11 @@ Vehicle Class: {check_aiia_arr(tree.xpath('//*[@id="waypoint-trigger"]/div[2]/ul
 Model: {check_aiia_arr(tree.xpath('//*[@id="waypoint-trigger"]/div[2]/ul/li[14]/span[2]/text()'))}\n
 Series: {check_aiia_arr(tree.xpath('//*[@id="waypoint-trigger"]/div[2]/ul/li[15]/span[2]/text()'))}\n
         '''
-        car_id = f"aiia - {tree.xpath('/html/body/section/main/section[2]/div/div/h1/text()')[0]}"
+        try:
+            car_id = f"aiia - {tree.xpath('/html/body/section/main/section[2]/div/div/h1/text()')[0]}"
+
+        except:
+            car_id = datetime.datetime.now().strftime("%m-%d-%Y %H-%M-%S")
         try:
             os.mkdir(car_id)
         except:
