@@ -57,10 +57,10 @@ URLS = {
     },
     'aiia': [
         'https://www.iaai.com/search?url=SILrjGptBGTiqPA8XndoyjlJr0DRZKvqCu%2fkh6A4qCE%3d'
-        # 'https://www.iaai.com/search?url=anAxnyLSnoFBJgK9xBb363EKHRmsn9G1o%2fwxtvDGMFQ%3d',
-        # 'https://www.iaai.com/search?url=rEyIKvCOUAlxQC%2bqCltnBjXIbgJuD4bQ79YsqZN9%2b6w%3d',
-        # 'https://www.iaai.com/search?url=DgV5nMhW%2fe7JSWPv6G8Xs3qFhbs2LgrDSExswj4B568%3d',
-        # 'https://www.iaai.com/search?url=JxarIrGtsOG0v54B6JV7HO%2f5q6JWfIG1j%2f5PAqDHGoQ%3d'
+        'https://www.iaai.com/search?url=anAxnyLSnoFBJgK9xBb363EKHRmsn9G1o%2fwxtvDGMFQ%3d',
+        'https://www.iaai.com/search?url=rEyIKvCOUAlxQC%2bqCltnBjXIbgJuD4bQ79YsqZN9%2b6w%3d',
+        'https://www.iaai.com/search?url=DgV5nMhW%2fe7JSWPv6G8Xs3qFhbs2LgrDSExswj4B568%3d',
+        'https://www.iaai.com/search?url=JxarIrGtsOG0v54B6JV7HO%2f5q6JWfIG1j%2f5PAqDHGoQ%3d'
     ] 
 }
 headers = {
