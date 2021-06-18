@@ -2,7 +2,6 @@ from posix import EX_CANTCREAT
 import requests
 import time
 from lxml import html
-from requests.api import post
 from bs4 import BeautifulSoup
 from telebot import TeleBot
 import threading
@@ -11,11 +10,12 @@ import os
 import datetime
 import shutil
 import json
-from fake_useragent import UserAgent
+# from fake_useragent import UserAgent
 import re
 
 
-ua = UserAgent()
+payload = {}
+# ua = UserAgent()
 app = TeleBot(TELEGRAM_TOKEN)
 URLS = {
     'copart': {
@@ -56,7 +56,7 @@ URLS = {
         }
     },
     'aiia': [
-        'https://www.iaai.com/search?url=SILrjGptBGTiqPA8XndoyjlJr0DRZKvqCu%2fkh6A4qCE%3d'
+        'https://www.iaai.com/search?url=SILrjGptBGTiqPA8XndoyjlJr0DRZKvqCu%2fkh6A4qCE%3d',
         'https://www.iaai.com/search?url=anAxnyLSnoFBJgK9xBb363EKHRmsn9G1o%2fwxtvDGMFQ%3d',
         'https://www.iaai.com/search?url=rEyIKvCOUAlxQC%2bqCltnBjXIbgJuD4bQ79YsqZN9%2b6w%3d',
         'https://www.iaai.com/search?url=DgV5nMhW%2fe7JSWPv6G8Xs3qFhbs2LgrDSExswj4B568%3d',
@@ -76,9 +76,12 @@ headers = {
     "x-xsrf-token": "065a6c42-97be-4521-bf90-99d55b97760d",
     'cookie': ''
 }
-ua.update()
-ua['google chrome']
-headers['User-Agent'] = ua['google chrome']
+# try:
+#     ua.update()
+#     ua['google chrome']
+#     headers['User-Agent'] = ua['google chrome']
+# except:
+#     pass
 data_cars = {
     '0': '',
     '1': '',
@@ -144,7 +147,7 @@ def bot_thread():
 
 def download_image(car_id, i, image_id):
     time.sleep(2)
-    image = requests.get(i['url']).content
+    image = requests.get(i['url'], data=payload).content
     with open(f'./{car_id}/'+str(car_id)+' --- '+str(image_id)+'.jpg', 'wb') as f:
         f.write(image)
         
@@ -200,7 +203,7 @@ def check_aiia_arr(arr):
 def parse_aiia(post_url):
     exception_flag = True
     try:
-        post_response = requests.get('https://iaai.com'+post_url)
+        post_response = requests.get('https://iaai.com'+post_url, data=payload)
     except Exception as e:
         exception_flag = False
         print(e)
@@ -264,7 +267,7 @@ def parse_aiia(post_url):
         except:
             images_cid = car_soup.find_all('img', {'class': 'img-responsive lazyload'})[0].attrs['data-src']
             images_cid = re.findall(r'imageKeys=(.+?)~', images_cid)[0] + '~SID'
-        images_json = json.loads(requests.get('https://anvis.iaai.com/dimensions?imageKeys='+images_cid).text)
+        images_json = json.loads(requests.get('https://anvis.iaai.com/dimensions?imageKeys='+images_cid, data=payload).text)
         i = 0
         for image in images_json['keys']:
             image_url = 'https://anvis.iaai.com/resizer?imageKeys='+str(image['K'])+'&width=845&height=633'
@@ -329,6 +332,9 @@ def copart_thread():
         time.sleep(350)
 
 def aiia_thread():
+    headers = {
+        'Cookie': 'IAAITrackingCookie=62c9879f-0635-49cb-a4d8-9c4a742397ba; ASP.NET_SessionId=y5fn0edtzmj4weh3cbk1g3tt; Locations_Cookie=Locations_Cookie=MapView; ASLBSA=752283e7583a4afe9fc575e5d6e4609eaf721f80b006245f19f03fcbdc3f34a8; ASLBSACORS=752283e7583a4afe9fc575e5d6e4609eaf721f80b006245f19f03fcbdc3f34a8'
+    }
     print('### START AIIA ###')
     while True:
         # aiia
@@ -383,7 +389,7 @@ def aiia_thread():
 if __name__ == '__main__':
 	thr_bot = threading.Thread(target=bot_thread)
 	thr_bot.start()
-	# thr_copart = threading.Thread(target=copart_thread)
-	# thr_copart.start()
+	thr_copart = threading.Thread(target=copart_thread)
+	thr_copart.start()
 	thr_aiia = threading.Thread(target=aiia_thread)
 	thr_aiia.start()
