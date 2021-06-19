@@ -201,6 +201,7 @@ def check_aiia_arr(arr):
 
 
 def parse_aiia(post_url):
+    print(post_url)
     exception_flag = True
     try:
         post_response = requests.get('https://iaai.com'+post_url, data=payload)
@@ -381,7 +382,7 @@ def aiia_thread():
                 post_flags = list(reversed(post_flags))
                 with open('./iaai_flags/aiia_flag'+str(url)+'.txt', 'w') as f:
                     f.write(post_flags[0].find('h4', {'class': 'heading-7 rtl-disabled'}).find('a').attrs['href'])
-                parse_aiia(post_flags[0])
+                parse_aiia(post_flags[0].find('h4', {'class': 'heading-7 rtl-disabled'}).find('a').attrs['href'])
                         
         print('checkout ------- aiia ------- ' + datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S"))
         time.sleep(300)
