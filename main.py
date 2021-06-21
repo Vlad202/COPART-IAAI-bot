@@ -10,7 +10,7 @@ import os
 import datetime
 import shutil
 import json
-# from fake_useragent import UserAgent
+from fake_useragent import UserAgent
 import re
 
 
@@ -24,30 +24,30 @@ URLS = {
             {
                 "filter[YEAR]": 'lot_year:"2014",lot_year:"2015",lot_year:"2016",lot_year:"2017",lot_year:"2018",lot_year:"2019"',
                 "filter[MAKE]": 'lot_make_desc:"VOLKSWAGEN"',
-                "filter[NLTS]": 'expected_sale_assigned_ts_utc:[NOW/DAY-1DAY TO NOW/DAY]'
+                "filter[NLTS]": 'expected_sale_assigned_ts_utc:[NOW/DAY-7DAY TO NOW/DAY]'
             },
             {
                 "filter[YEAR]": 'lot_year:"2019",lot_year:"2018",lot_year:"2017",lot_year:"2016",lot_year:"2015",lot_year:"2014"',
                 "filter[MAKE]": 'lot_make_desc:"FORD"',
                 "filter[BODY]": 'body_style:"4DR SPOR",body_style:"CONVERTI",body_style:"COUPE",body_style:"HATCHBAC",body_style:"SEDAN 4D"',
-                "filter[NLTS]": 'expected_sale_assigned_ts_utc:[NOW/DAY-1DAY TO NOW/DAY]'
+                "filter[NLTS]": 'expected_sale_assigned_ts_utc:[NOW/DAY-7DAY TO NOW/DAY]'
             },
             {
                 "filter[YEAR]": 'lot_year:"2019",lot_year:"2018",lot_year:"2017",lot_year:"2016",lot_year:"2015",lot_year:"2014"',
                 "filter[MAKE]": 'lot_make_desc:"NISSAN"',
                 "filter[BODY]": 'body_style:"4DR SPOR",body_style:"COUPE",body_style:"CONVERTI",body_style:"HATCHBAC",body_style:"SEDAN 4D"',
-                "filter[NLTS]": 'expected_sale_assigned_ts_utc:[NOW/DAY-1DAY TO NOW/DAY]'
+                "filter[NLTS]": 'expected_sale_assigned_ts_utc:[NOW/DAY-7DAY TO NOW/DAY]'
             },
             {
                 "filter[YEAR]": 'lot_year:"2022",lot_year:"2021",lot_year:"2020",lot_year:"2019",lot_year:"2018",lot_year:"2017",lot_year:"2016",lot_year:"2015"',
                 "filter[FUEL]": 'fuel_type_desc:"DIESEL"',
                 "filter[BODY]": 'body_style:"4DR SPOR",body_style:"HATCHBAC",body_style:"SEDAN 4D"',
-                "filter[NLTS]": 'expected_sale_assigned_ts_utc:[NOW/DAY-1DAY TO NOW/DAY]'
+                "filter[NLTS]": 'expected_sale_assigned_ts_utc:[NOW/DAY-7DAY TO NOW/DAY]'
             },
             {
                 "filter[YEAR]": 'lot_year:"2016",lot_year:"2017",lot_year:"2018",lot_year:"2019",lot_year:"2020",lot_year:"2021"',
                 "filter[FUEL]": 'fuel_type_desc:"ELECTRIC"',
-                "filter[NLTS]": 'expected_sale_assigned_ts_utc:[NOW/DAY-1DAY TO NOW/DAY]'
+                "filter[NLTS]": 'expected_sale_assigned_ts_utc:[NOW/DAY-7DAY TO NOW/DAY]'
             }
         ],
         'keys': {
@@ -74,14 +74,15 @@ headers = {
     "sec-fetch-site": "same-origin",
     "x-requested-with": "XMLHttpRequest",
     "x-xsrf-token": "065a6c42-97be-4521-bf90-99d55b97760d",
-    'cookie': ''
+    'cookie': '',
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.101 Safari/537.36'
 }
-# try:
-#     ua.update()
-#     ua['google chrome']
-#     headers['User-Agent'] = ua['google chrome']
-# except:
-#     pass
+try:
+    ua.update()
+    ua['google chrome']
+    headers['User-Agent'] = ua['google chrome']
+except:
+    pass
 data_cars = {
     '0': '',
     '1': '',
@@ -165,12 +166,15 @@ def coport_parser(s, copart_next_post):
         text += f"Статус продажи: {copart_next_post['dynamicLotDetails']['saleStatus']}\n"
     except:
         pass
-    car_id = f"copart - {copart_next_post['ld']}"
+    car_id = f"copart - {copart_next_post['ld']}".replace('/', ' - ')
     try:
         os.mkdir(car_id)
     except:
-        shutil.rmtree(f'{car_id}/')
-        os.mkdir(car_id)
+        try:
+            shutil.rmtree(f'{car_id}/')
+            os.mkdir(car_id)
+        except:
+            pass
     with open(f'./{car_id}/'+car_id+'.txt', 'w') as f:
         f.write(text)
 
@@ -297,13 +301,15 @@ def copart_thread():
             with open('./copart_flags/copart_flag'+str(cars_filter)+'.txt', 'r') as f:
                 checkout_url = f.read()
             try:
-                response_copart = json.loads(s.post(URLS['copart']['url'], data=copart_data[cars_filter]).text)['data']['results']['content']
+                response_copart = json.loads(s.post(URLS['copart']['url'], headers=headers, data=copart_data[cars_filter]).text)['data']['results']['content']
+            # print(s.post(URLS['copart']['url'], headers=headers, data=copart_data[cars_filter]).text)
             except Exception as e:
                 print(e)
                 print(f'Exception in copart global requests, iteration {cars_filter+1}')
                 continue
             # time.sleep(30)
             copart_flag = True
+            print(response_copart)
             response_copart = list(reversed(response_copart))
             for post in range(len(response_copart)):
                 print(response_copart[post]['ln'])
@@ -317,6 +323,7 @@ def copart_thread():
                         with open('./copart_flags/copart_flag'+str(cars_filter)+'.txt', 'w') as f:
                             f.write(str(response_copart[post]['ln']))
                         coport_parser(s, final_post)
+                        time.sleep(10)
                     break
             if copart_flag:
                 response_copart = list(reversed(response_copart))
@@ -328,7 +335,7 @@ def copart_thread():
             # if data_cars[str(cars_filter)] != copart_next_post['ln']:
             #     coport_parser(s, copart_next_post)
             #     data_cars[str(cars_filter)] = copart_next_post['ln']
-            # time.sleep(200)
+            time.sleep(200)
         print('checkout ------- copart ------- ' + datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S"))
         time.sleep(350)
 
